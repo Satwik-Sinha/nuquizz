@@ -24,8 +24,8 @@ export default function AssignmentControlButtons({
   return (
     <div className="d-flex flex-row">
       {currentUser?.role === "FACULTY" && (
-        <FaTrash 
-          className="text-danger me-2" 
+        <FaTrash
+          className="text-danger me-2"
           onClick={handleDelete}
           style={{ cursor: 'pointer' }}
         />

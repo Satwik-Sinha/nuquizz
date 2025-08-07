@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import "./styles.css";
 import Session from "./Account/Session";
 import Account from "./Account";
-import Dashboard from "./Dashboard";
+import DashboardMUI from "./DashboardMUI";
 import Courses from "./Courses";
 import KambazNavigation from "./Navigation";
 import ProtectedRoute from "./Account/ProtectedRoute";
@@ -166,7 +166,7 @@ export default function Kambaz() {
               path="/Dashboard"
               element={
                 <ProtectedRoute>
-                  <Dashboard
+                  <DashboardMUI
                     courses={courses}
                     course={course}
                     setCourse={setCourse}

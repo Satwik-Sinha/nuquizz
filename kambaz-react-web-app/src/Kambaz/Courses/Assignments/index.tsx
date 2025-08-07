@@ -23,15 +23,15 @@ export default function Assignments() {
   useEffect(() => {
     async function fetchAssignments() {
       if (!cid) return;
-      
+
       setLoading(true);
       setError(null);
-      
+
       try {
         console.log("Fetching assignments for course:", cid);
         const data = await assignmentsClient.findAssignmentsForCourse(cid);
         console.log("Assignments fetched:", data);
-        
+
         if (Array.isArray(data)) {
           dispatch(setAssignments(data));
         } else {
@@ -89,7 +89,7 @@ export default function Assignments() {
 
   return (
     <div className="d-flex flex-column">
-      
+
       {currentUser?.role === "FACULTY" && (
         <div className="mb-4">
           <AssignmentsControls
