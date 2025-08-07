@@ -2,3 +2,6 @@
 base = "kambaz-react-web-app"
 publish = "dist"
 command = "npm run build"
+
+[build.environment]
+VITE_REMOTE_SERVER_A6 = "https://nuquizz.onrender.com"
