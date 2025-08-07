@@ -4,6 +4,8 @@ import Modules from "./Modules";
 import Assignments from "./Assignments";
 import AssignmentEditor from "./Assignments/Editor";
 import Quizzes from "./Quizzes";
+import Discussions from "./Discussions";
+import Zoom from "./Zoom";
 import { Route, Routes, useParams, useLocation } from "react-router";
 import { FaAlignJustify } from "react-icons/fa";
 import PeopleTable from "./People/Table";
@@ -45,14 +47,11 @@ export default function Courses() {
             {/* <Route path="Quizzes/:qid/quiz" element={<Quiz />} /> */}
             <Route path="Quizzes/:qid/quiz" element={<QuizRouter />} />
             <Route path="People" element={<PeopleTable />} />
+            <Route path="Discussions" element={<Discussions />} />
+            <Route path="Zoom" element={<Zoom />} />
           </Routes>
         </div>
       </div>
     </div>
   );
 }
-
-
-
-
-

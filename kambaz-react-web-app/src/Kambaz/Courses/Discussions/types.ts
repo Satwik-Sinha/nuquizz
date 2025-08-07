@@ -9,12 +9,11 @@ export interface DiscussionPost {
     role: 'STUDENT' | 'FACULTY' | 'TA';
   };
   courseId: string;
-  category: 'QUESTION' | 'NOTE' | 'POLL' | 'GENERAL';
+  category: 'QUESTION' | 'NOTE' | 'POLL';
   tags: string[];
   isAnonymous: boolean;
   isPinned: boolean;
   isResolved: boolean;
-  isFollowed?: boolean;
   votes: {
     upvotes: number;
     downvotes: number;
@@ -24,9 +23,15 @@ export interface DiscussionPost {
   replies: Reply[];
   createdAt: string;
   updatedAt: string;
-  folders?: string[];
-  isPrivate?: boolean;
-  duplicateOf?: string;
+}
+
+// Add missing type exports
+export type PostType = 'QUESTION' | 'NOTE' | 'POLL';
+
+export interface Discussion extends DiscussionPost {}
+
+export interface DiscussionWithReplies extends DiscussionPost {
+  replies: Reply[];
 }
 
 export interface Reply {
@@ -54,40 +59,17 @@ export interface Reply {
 }
 
 export interface DiscussionFilters {
-  category?: 'QUESTION' | 'NOTE' | 'POLL' | 'GENERAL' | 'ALL';
+  category?: 'QUESTION' | 'NOTE' | 'POLL' | 'ALL';
   status?: 'UNRESOLVED' | 'RESOLVED' | 'ALL';
   author?: 'ME' | 'INSTRUCTORS' | 'ALL';
   tags?: string[];
-  sortBy?: 'RECENT' | 'POPULAR' | 'UNRESOLVED' | 'OLDEST';
-  searchQuery?: string;
-  folder?: string;
-  followed?: boolean;
+  sortBy?: 'RECENT' | 'POPULAR' | 'UNRESOLVED';
 }
 
 export interface CreatePostData {
   title: string;
   content: string;
-  category: 'QUESTION' | 'NOTE' | 'POLL' | 'GENERAL';
+  category: 'QUESTION' | 'NOTE' | 'POLL';
   tags: string[];
   isAnonymous: boolean;
-  isPrivate?: boolean;
-  folders?: string[];
-}
-
-export interface PostStats {
-  totalPosts: number;
-  resolvedQuestions: number;
-  unresolvedQuestions: number;
-  notes: number;
-  polls: number;
-}
-
-export interface Folder {
-  _id: string;
-  name: string;
-  description?: string;
-  courseId: string;
-  createdBy: string;
-  isDefault: boolean;
-  color?: string;
 }

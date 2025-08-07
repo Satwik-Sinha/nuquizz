@@ -238,3 +238,4 @@ export default function CreatePostDialog({ open, onClose, onSubmit }: CreatePost
     </Dialog>
   );
 }
+

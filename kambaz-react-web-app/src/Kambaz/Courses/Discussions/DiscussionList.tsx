@@ -12,11 +12,10 @@ import {
   Badge,
   Tooltip,
   useTheme,
-  Button,
+  TextField,
+  InputAdornment,
   Menu,
-  MenuItem,
-  CardActionArea,
-  LinearProgress
+  MenuItem
 } from '@mui/material';
 import {
   ThumbUp,
@@ -28,17 +27,10 @@ import {
   HelpOutline,
   StickyNote2,
   Poll,
-  BookmarkBorder,
-  Bookmark,
-  Share,
-  MoreVert,
-  School,
-  Person,
-  CheckCircleOutline,
-  Forum,
-  TrendingUp
+  Search as SearchIcon,
+  FilterList as FilterIcon
 } from '@mui/icons-material';
-import { DiscussionPost } from './types';
+import { DiscussionPost, PostType } from './types';
 import { formatDistanceToNow } from 'date-fns';
 
 interface DiscussionListProps {
@@ -47,18 +39,15 @@ interface DiscussionListProps {
 }
 
 const CategoryIcon = ({ category }: { category: string }) => {
-  const iconProps = { fontSize: 'small' as const };
   switch (category) {
     case 'QUESTION':
-      return <HelpOutline {...iconProps} sx={{ color: '#1976d2' }} />;
+      return <HelpOutline fontSize="small" />;
     case 'NOTE':
-      return <StickyNote2 {...iconProps} sx={{ color: '#388e3c' }} />;
+      return <StickyNote2 fontSize="small" />;
     case 'POLL':
-      return <Poll {...iconProps} sx={{ color: '#f57c00' }} />;
-    case 'GENERAL':
-      return <Forum {...iconProps} sx={{ color: '#7b1fa2' }} />;
+      return <Poll fontSize="small" />;
     default:
-      return <HelpOutline {...iconProps} />;
+      return <HelpOutline fontSize="small" />;
   }
 };
 
@@ -75,20 +64,12 @@ const getRoleColor = (role: string) => {
   }
 };
 
-const getRoleIcon = (role: string) => {
-  switch (role) {
-    case 'FACULTY':
-    case 'TA':
-      return <School fontSize="small" />;
-    case 'STUDENT':
-    default:
-      return <Person fontSize="small" />;
-  }
-};
-
 export default function DiscussionList({ posts, onPostUpdate }: DiscussionListProps) {
   const theme = useTheme();
-  const [menuAnchorEl, setMenuAnchorEl] = useState<{ [key: string]: HTMLElement | null }>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedFilter, setSelectedFilter] = useState<'all' | PostType>('all');
+  const [sortBy, setSortBy] = useState<'recent' | 'votes' | 'replies'>('recent');
 
   const handleVote = (post: DiscussionPost, voteType: 'up' | 'down') => {
     const currentUserId = 'currentUser'; // Replace with actual user ID
@@ -130,306 +111,300 @@ export default function DiscussionList({ posts, onPostUpdate }: DiscussionListPr
     onPostUpdate(updatedPost);
   };
 
-  const handleFollow = (post: DiscussionPost) => {
-    const updatedPost = {
-      ...post,
-      isFollowed: !post.isFollowed
-    };
-    onPostUpdate(updatedPost);
+  const filteredAndSortedDiscussions = posts
+    .filter(post => {
+      return post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    })
+    .sort((a, b) => {
+      // Pinned posts always come first
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+
+      switch (sortBy) {
+        case 'votes':
+          return (b.votes.upvotes - b.votes.downvotes) - (a.votes.upvotes - a.votes.downvotes);
+        case 'replies':
+          return b.replies.length - a.replies.length;
+        case 'recent':
+        default:
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      }
+    });
+
+  const formatTimeAgo = (date: Date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+
+    if (diffInMinutes < 1) return 'just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
-  const handleMenuOpen = (postId: string, event: React.MouseEvent<HTMLElement>) => {
-    setMenuAnchorEl({ ...menuAnchorEl, [postId]: event.currentTarget });
-  };
-
-  const handleMenuClose = (postId: string) => {
-    setMenuAnchorEl({ ...menuAnchorEl, [postId]: null });
-  };
-
-  const handleMarkResolved = (post: DiscussionPost) => {
-    const updatedPost = {
-      ...post,
-      isResolved: !post.isResolved
-    };
-    onPostUpdate(updatedPost);
-    handleMenuClose(post._id);
-  };
-
-  const getNetVotes = (post: DiscussionPost) => {
-    return post.votes.upvotes - post.votes.downvotes;
-  };
-
-  const getEngagementScore = (post: DiscussionPost) => {
-    return post.votes.upvotes + post.replies.length + Math.floor(post.views / 10);
-  };
-
-  if (posts.length === 0) {
+  if (filteredAndSortedDiscussions.length === 0) {
     return (
       <Box
         sx={{
-          textAlign: 'center',
-          py: 8,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: 200,
           color: 'text.secondary'
         }}
       >
-        <Forum sx={{ fontSize: 64, mb: 2, opacity: 0.3 }} />
-        <Typography variant="h6" gutterBottom>
-          No discussions found
-        </Typography>
-        <Typography variant="body2">
-          Be the first to start a conversation!
-        </Typography>
+        <Typography variant="h6">No discussions found</Typography>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ space: 2 }}>
-      {posts.map((post, index) => {
-        const netVotes = getNetVotes(post);
-        const engagementScore = getEngagementScore(post);
-        const currentUserVote = post.votes.userVotes['currentUser'];
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+        <Typography variant="h6" gutterBottom>
+          Discussions
+        </Typography>
 
-        return (
+        {/* Search and Filter */}
+        <Stack spacing={2}>
+          <TextField
+            size="small"
+            placeholder="Search discussions..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    size="small"
+                    onClick={(e) => setFilterAnchorEl(e.currentTarget)}
+                  >
+                    <FilterIcon />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
+
+          <Stack direction="row" spacing={1} flexWrap="wrap">
+            <Chip
+              size="small"
+              label={`Filter: ${selectedFilter}`}
+              color={selectedFilter !== 'all' ? 'primary' : 'default'}
+            />
+            <Chip
+              size="small"
+              label={`Sort: ${sortBy}`}
+              color="default"
+            />
+          </Stack>
+        </Stack>
+      </Box>
+
+      {/* Filter Menu */}
+      <Menu
+        anchorEl={filterAnchorEl}
+        open={Boolean(filterAnchorEl)}
+        onClose={() => setFilterAnchorEl(null)}
+      >
+        <MenuItem onClick={() => { setSelectedFilter('all'); setFilterAnchorEl(null); }}>
+          All Posts
+        </MenuItem>
+        <MenuItem onClick={() => { setSelectedFilter('QUESTION'); setFilterAnchorEl(null); }}>
+          Questions
+        </MenuItem>
+        <MenuItem onClick={() => { setSelectedFilter('NOTE'); setFilterAnchorEl(null); }}>
+          Notes
+        </MenuItem>
+        <MenuItem onClick={() => { setSelectedFilter('POLL'); setFilterAnchorEl(null); }}>
+          Polls
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={() => { setSortBy('recent'); setFilterAnchorEl(null); }}>
+          Sort by Recent
+        </MenuItem>
+        <MenuItem onClick={() => { setSortBy('votes'); setFilterAnchorEl(null); }}>
+          Sort by Votes
+        </MenuItem>
+        <MenuItem onClick={() => { setSortBy('replies'); setFilterAnchorEl(null); }}>
+          Sort by Replies
+        </MenuItem>
+      </Menu>
+
+      {/* Discussion List */}
+      <Stack spacing={2} sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+        {filteredAndSortedDiscussions.map((post) => (
           <Card
             key={post._id}
+            elevation={1}
             sx={{
-              mb: 2,
+              borderRadius: 2,
+              border: post.isPinned ? `2px solid ${theme.palette.primary.main}` : 'none',
               transition: 'all 0.2s ease-in-out',
-              border: post.isPinned ? '2px solid' : '1px solid',
-              borderColor: post.isPinned ? 'primary.main' : 'divider',
               '&:hover': {
-                boxShadow: theme.shadows[4],
-                transform: 'translateY(-1px)'
+                elevation: 3,
+                transform: 'translateY(-2px)'
               }
             }}
           >
-            <CardActionArea>
-              <CardContent sx={{ pb: 1 }}>
-                {/* Header Row */}
-                <Stack direction="row" spacing={2} alignItems="flex-start" sx={{ mb: 2 }}>
-                  {/* Left Side - Category Icon and Voting */}
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 60 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <CategoryIcon category={post.category} />
-                      {post.isPinned && (
-                        <PushPin sx={{ fontSize: 16, color: 'primary.main', ml: 0.5 }} />
-                      )}
-                    </Box>
+            <CardContent sx={{ p: 3 }}>
+              {/* Header */}
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                  <CategoryIcon category={post.category} />
+                  <Typography
+                    variant="h6"
+                    component="h3"
+                    sx={{
+                      fontWeight: 600,
+                      color: 'text.primary',
+                      cursor: 'pointer',
+                      '&:hover': { color: 'primary.main' }
+                    }}
+                  >
+                    {post.title}
+                  </Typography>
 
-                    {/* Voting Section */}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <IconButton
+                  {post.isPinned && (
+                    <Tooltip title="Pinned">
+                      <PushPin color="primary" fontSize="small" />
+                    </Tooltip>
+                  )}
+
+                  {post.isResolved && (
+                    <Tooltip title="Resolved">
+                      <CheckCircle color="success" fontSize="small" />
+                    </Tooltip>
+                  )}
+                </Box>
+
+                <Chip
+                  label={post.category}
+                  size="small"
+                  color={
+                    post.category === 'QUESTION' ? 'primary' :
+                    post.category === 'NOTE' ? 'secondary' : 'default'
+                  }
+                  variant="outlined"
+                />
+              </Box>
+
+              {/* Content Preview */}
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mb: 2, lineHeight: 1.5 }}
+              >
+                {post.content.length > 150
+                  ? `${post.content.substring(0, 150)}...`
+                  : post.content
+                }
+              </Typography>
+
+              {/* Tags */}
+              {post.tags.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Stack direction="row" spacing={1} flexWrap="wrap">
+                    {post.tags.map((tag, index) => (
+                      <Chip
+                        key={index}
+                        label={tag}
                         size="small"
-                        onClick={(e) => { e.stopPropagation(); handleVote(post, 'up'); }}
-                        color={currentUserVote === 'up' ? 'primary' : 'default'}
-                        sx={{ p: 0.5 }}
-                      >
-                        <ThumbUp fontSize="small" />
-                      </IconButton>
+                        variant="outlined"
+                        sx={{ fontSize: '0.75rem' }}
+                      />
+                    ))}
+                  </Stack>
+                </Box>
+              )}
 
-                      <Typography
-                        variant="body2"
-                        fontWeight="bold"
-                        color={netVotes > 0 ? 'success.main' : netVotes < 0 ? 'error.main' : 'text.secondary'}
-                        sx={{ py: 0.5, minWidth: 24, textAlign: 'center' }}
-                      >
-                        {netVotes > 0 ? `+${netVotes}` : netVotes}
-                      </Typography>
+              <Divider sx={{ my: 2 }} />
 
-                      <IconButton
-                        size="small"
-                        onClick={(e) => { e.stopPropagation(); handleVote(post, 'down'); }}
-                        color={currentUserVote === 'down' ? 'error' : 'default'}
-                        sx={{ p: 0.5 }}
-                      >
-                        <ThumbDown fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  </Box>
-
-                  {/* Main Content */}
-                  <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                    {/* Title and Status */}
-                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                      <Typography
-                        variant="h6"
-                        component="h3"
-                        sx={{
-                          fontWeight: post.isResolved ? 'normal' : 'bold',
-                          textDecoration: post.isResolved ? 'line-through' : 'none',
-                          opacity: post.isResolved ? 0.7 : 1,
-                          flexGrow: 1,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical'
-                        }}
-                      >
-                        {post.title}
-                      </Typography>
-
-                      {post.isResolved && (
-                        <Tooltip title="Resolved">
-                          <CheckCircle sx={{ color: 'success.main', fontSize: 20 }} />
-                        </Tooltip>
-                      )}
-                    </Stack>
-
-                    {/* Content Preview */}
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        mb: 2,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        lineHeight: 1.4
-                      }}
-                    >
-                      {post.content}
+              {/* Footer */}
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                {/* Author and Time */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Avatar
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      bgcolor: getRoleColor(post.author.role),
+                      fontSize: '0.875rem'
+                    }}
+                  >
+                    {post.isAnonymous ? '?' :
+                      `${post.author.firstName[0]}${post.author.lastName[0]}`
+                    }
+                  </Avatar>
+                  <Box>
+                    <Typography variant="body2" fontWeight={500}>
+                      {post.isAnonymous ? 'Anonymous' :
+                        `${post.author.firstName} ${post.author.lastName}`
+                      }
                     </Typography>
-
-                    {/* Tags */}
-                    {post.tags.length > 0 && (
-                      <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap' }}>
-                        {post.tags.slice(0, 4).map((tag) => (
-                          <Chip
-                            key={tag}
-                            label={tag}
-                            size="small"
-                            variant="outlined"
-                            sx={{ fontSize: '0.75rem', height: 24 }}
-                          />
-                        ))}
-                        {post.tags.length > 4 && (
-                          <Chip
-                            label={`+${post.tags.length - 4} more`}
-                            size="small"
-                            variant="outlined"
-                            color="primary"
-                            sx={{ fontSize: '0.75rem', height: 24 }}
-                          />
-                        )}
-                      </Stack>
-                    )}
-
-                    {/* Author and Metadata */}
-                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <Avatar
-                          sx={{
-                            width: 24,
-                            height: 24,
-                            bgcolor: getRoleColor(post.author.role),
-                            fontSize: '0.75rem'
-                          }}
-                        >
-                          {getRoleIcon(post.author.role)}
-                        </Avatar>
-                        <Typography variant="caption" color="text.secondary">
-                          {post.isAnonymous ? 'Anonymous' : `${post.author.firstName} ${post.author.lastName}`}
-                          {!post.isAnonymous && (
-                            <Chip
-                              label={post.author.role}
-                              size="small"
-                              sx={{
-                                ml: 1,
-                                height: 16,
-                                fontSize: '0.65rem',
-                                bgcolor: getRoleColor(post.author.role),
-                                color: 'white'
-                              }}
-                            />
-                          )}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          • {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-                        </Typography>
-                      </Stack>
-
-                      {/* Action Buttons */}
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <Stack direction="row" spacing={2} alignItems="center" sx={{ mr: 1 }}>
-                          <Stack direction="row" alignItems="center" spacing={0.5}>
-                            <Visibility sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography variant="caption" color="text.secondary">
-                              {post.views}
-                            </Typography>
-                          </Stack>
-
-                          <Stack direction="row" alignItems="center" spacing={0.5}>
-                            <ReplyIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography variant="caption" color="text.secondary">
-                              {post.replies.length}
-                            </Typography>
-                          </Stack>
-
-                          {engagementScore > 10 && (
-                            <Stack direction="row" alignItems="center" spacing={0.5}>
-                              <TrendingUp sx={{ fontSize: 16, color: 'warning.main' }} />
-                              <Typography variant="caption" color="warning.main">
-                                Hot
-                              </Typography>
-                            </Stack>
-                          )}
-                        </Stack>
-
-                        <IconButton
-                          size="small"
-                          onClick={(e) => { e.stopPropagation(); handleFollow(post); }}
-                          color={post.isFollowed ? 'primary' : 'default'}
-                        >
-                          {post.isFollowed ? <Bookmark fontSize="small" /> : <BookmarkBorder fontSize="small" />}
-                        </IconButton>
-
-                        <IconButton
-                          size="small"
-                          onClick={(e) => { e.stopPropagation(); handleMenuOpen(post._id, e); }}
-                        >
-                          <MoreVert fontSize="small" />
-                        </IconButton>
-                      </Stack>
-                    </Stack>
-
-                    {/* Instructor Answer Indicator */}
-                    {post.replies.some(reply => reply.isInstructorAnswer) && (
-                      <Box sx={{ mt: 1, p: 1, bgcolor: 'success.50', borderRadius: 1, border: '1px solid', borderColor: 'success.200' }}>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <CheckCircleOutline sx={{ fontSize: 16, color: 'success.main' }} />
-                          <Typography variant="caption" color="success.main" fontWeight="bold">
-                            Instructor Answer Available
-                          </Typography>
-                        </Stack>
-                      </Box>
-                    )}
+                    <Typography variant="caption" color="text.secondary">
+                      {formatDistanceToNow(new Date(post.createdAt))} ago
+                    </Typography>
                   </Box>
-                </Stack>
-              </CardContent>
-            </CardActionArea>
+                </Box>
 
-            {/* Context Menu */}
-            <Menu
-              anchorEl={menuAnchorEl[post._id]}
-              open={Boolean(menuAnchorEl[post._id])}
-              onClose={() => handleMenuClose(post._id)}
-            >
-              <MenuItem onClick={() => handleMarkResolved(post)}>
-                <CheckCircle sx={{ mr: 1, fontSize: 20 }} />
-                {post.isResolved ? 'Mark as Unresolved' : 'Mark as Resolved'}
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuClose(post._id)}>
-                <Share sx={{ mr: 1, fontSize: 20 }} />
-                Share
-              </MenuItem>
-            </Menu>
+                {/* Actions */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {/* Vote buttons */}
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleVote(post, 'up')}
+                      color={post.votes.userVotes['currentUser'] === 'up' ? 'primary' : 'default'}
+                    >
+                      <ThumbUp fontSize="small" />
+                    </IconButton>
+                    <Typography variant="body2" sx={{ minWidth: 20, textAlign: 'center' }}>
+                      {post.votes.upvotes - post.votes.downvotes}
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleVote(post, 'down')}
+                      color={post.votes.userVotes['currentUser'] === 'down' ? 'error' : 'default'}
+                    >
+                      <ThumbDown fontSize="small" />
+                    </IconButton>
+                  </Box>
+
+                  {/* Views */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Visibility fontSize="small" color="action" />
+                    <Typography variant="body2" color="text.secondary">
+                      {post.views}
+                    </Typography>
+                  </Box>
+
+                  {/* Replies */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Badge badgeContent={post.replies.length} color="primary">
+                      <ReplyIcon fontSize="small" color="action" />
+                    </Badge>
+                  </Box>
+                </Box>
+              </Box>
+            </CardContent>
           </Card>
-        );
-      })}
+        ))}
+      </Stack>
+
+      {/* Results Count */}
+      <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
+        <Typography variant="caption" color="text.secondary">
+          Showing {filteredAndSortedDiscussions.length} of {posts.length} discussions
+        </Typography>
+      </Box>
     </Box>
   );
 }
