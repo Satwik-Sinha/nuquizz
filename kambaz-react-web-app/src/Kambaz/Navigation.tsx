@@ -15,23 +15,33 @@ export default function KambazNavigation() {
     { label: "Labs", path: "/Labs", icon: LiaCogSolid },
   ];
 
+  const gradientStyle = {
+    background: 'linear-gradient(135deg, #4E2A84 0%, #2D1B69 50%, #1A0F3A 100%)',
+    width: 120
+  };
+
+  const activeGradientStyle = {
+    background: 'linear-gradient(135deg, #342056 0%, #1A0F3A 50%, #0D0820 100%)'
+  };
 
   return (
-    <ListGroup id="wd-kambaz-navigation" style={{ width: 120 }}
-      className="rounded-0 position-fixed bottom-0 top-0 d-none d-md-block bg-black z-2">
+    <ListGroup id="wd-kambaz-navigation" style={gradientStyle}
+      className="rounded-0 position-fixed bottom-0 top-0 d-none d-md-block z-2">
       <ListGroup.Item id="wd-neu-link" target="_blank" href="https://www.northeastern.edu/"
-        action className="bg-black border-0 text-center">
+        action className="border-0 text-center"
+        style={{ background: 'linear-gradient(135deg, #4E2A84 0%, #2D1B69 100%)' }}>
         <img src="/images/NEU.png" width="75px" /></ListGroup.Item>
-      <ListGroup.Item as={Link} to="/Kambaz/Account" className={`text-center border-0 bg-black
-            ${pathname.includes("Account") ? "bg-white text-danger" : "bg-black text-white"}`}>
-        <FaRegCircleUser className={`fs-1 ${pathname.includes("Account") ? "text-danger" : "text-white"}`} />
+      <ListGroup.Item as={Link} to="/Kambaz/Account" className={`text-center border-0 text-white`}
+        style={pathname.includes("Account") ? activeGradientStyle : { background: 'transparent' }}>
+        <FaRegCircleUser className="fs-1 text-white" />
         <br />
         Account
       </ListGroup.Item>
       {links.map((link) => (
-        <ListGroup.Item key={link.path} as={Link} to={link.path} className={`bg-black text-center border-0
-              ${pathname.includes(link.label) ? "text-danger bg-white" : "text-white bg-black"}`}>
-          {link.icon({ className: "fs-1 text-danger" })}
+        <ListGroup.Item key={link.path} as={Link} to={link.path}
+          className="text-center border-0 text-white"
+          style={pathname.includes(link.label) ? activeGradientStyle : { background: 'transparent' }}>
+          {link.icon({ className: "fs-1 text-white" })}
           <br />
           {link.label}
         </ListGroup.Item>
@@ -39,4 +49,3 @@ export default function KambazNavigation() {
     </ListGroup>
   );
 }
-

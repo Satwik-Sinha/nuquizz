@@ -53,56 +53,77 @@ const DiscussionPost: React.FC<DiscussionPostProps> = ({ discussion, onBack }) =
   useEffect(() => {
     const sampleReplies: Reply[] = [
       {
-        id: '1',
+        _id: '1',
         content: 'You can pass props by adding them as attributes to your component when you use it. For example: <MyComponent name="John" age={25} />',
         author: {
-          id: '2',
-          name: 'Teaching Assistant',
-          role: 'ta',
-          avatar: 'TA'
+          _id: '2',
+          firstName: 'Teaching',
+          lastName: 'Assistant',
+          role: 'TA',
         },
-        createdAt: new Date('2024-12-01T11:15:00Z'),
-        updatedAt: new Date('2024-12-01T11:15:00Z'),
-        votes: 8,
+        postId: discussion._id,
+        isAnonymous: false,
         isInstructorAnswer: false,
-        isEndorsed: true
+        isEndorsed: true,
+        votes: {
+          upvotes: 8,
+          downvotes: 0,
+          userVotes: {}
+        },
+        replies: [],
+        createdAt: '2024-12-01T11:15:00Z',
+        updatedAt: '2024-12-01T11:15:00Z',
       },
       {
-        id: '2',
+        _id: '2',
         content: 'Great explanation! Just to add to this, make sure you\'re destructuring the props correctly in your component function: function MyComponent({ name, age }) { ... }',
         author: {
-          id: '4',
-          name: 'Jane Wilson',
-          role: 'student',
-          avatar: 'JW'
+          _id: '4',
+          firstName: 'Jane',
+          lastName: 'Wilson',
+          role: 'STUDENT',
         },
-        createdAt: new Date('2024-12-01T12:30:00Z'),
-        updatedAt: new Date('2024-12-01T12:30:00Z'),
-        votes: 3,
+        postId: discussion._id,
+        isAnonymous: false,
         isInstructorAnswer: false,
-        isEndorsed: false
+        isEndorsed: false,
+        votes: {
+          upvotes: 3,
+          downvotes: 0,
+          userVotes: {}
+        },
+        replies: [],
+        createdAt: '2024-12-01T12:30:00Z',
+        updatedAt: '2024-12-01T12:30:00Z',
       },
       {
-        id: '3',
+        _id: '3',
         content: 'This is exactly right. Props flow down from parent to child components. Remember that props are read-only - you cannot modify them within the child component.',
         author: {
-          id: '3',
-          name: 'Prof. Johnson',
-          role: 'instructor',
-          avatar: 'PJ'
+          _id: '3',
+          firstName: 'Prof.',
+          lastName: 'Johnson',
+          role: 'FACULTY',
         },
-        createdAt: new Date('2024-12-01T14:45:00Z'),
-        updatedAt: new Date('2024-12-01T14:45:00Z'),
-        votes: 12,
+        postId: discussion._id,
+        isAnonymous: false,
         isInstructorAnswer: true,
-        isEndorsed: true
+        isEndorsed: true,
+        votes: {
+          upvotes: 12,
+          downvotes: 0,
+          userVotes: {}
+        },
+        replies: [],
+        createdAt: '2024-12-01T14:45:00Z',
+        updatedAt: '2024-12-01T14:45:00Z',
       }
     ];
 
-    if (discussion.id === '1') {
+    if (discussion._id === '1') {
       setReplies(sampleReplies);
     }
-  }, [discussion.id]);
+  }, [discussion._id]);
 
   const handleVote = (type: 'up' | 'down') => {
     setUserVote(userVote === type ? null : type);
@@ -111,19 +132,26 @@ const DiscussionPost: React.FC<DiscussionPostProps> = ({ discussion, onBack }) =
   const handleReply = () => {
     if (newReply.trim()) {
       const reply: Reply = {
-        id: Date.now().toString(),
+        _id: Date.now().toString(),
         content: newReply,
         author: {
-          id: 'current-user',
-          name: 'Current User',
-          role: 'student',
-          avatar: 'CU'
+          _id: 'current-user',
+          firstName: 'Current',
+          lastName: 'User',
+          role: 'STUDENT',
         },
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        votes: 0,
+        postId: discussion._id,
+        isAnonymous: false,
         isInstructorAnswer: false,
-        isEndorsed: false
+        isEndorsed: false,
+        votes: {
+          upvotes: 0,
+          downvotes: 0,
+          userVotes: {}
+        },
+        replies: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       setReplies([...replies, reply]);
@@ -174,9 +202,9 @@ const DiscussionPost: React.FC<DiscussionPostProps> = ({ discussion, onBack }) =
           <Stack direction="row" spacing={1} alignItems="center">
             <Chip
               size="small"
-              label={discussion.type}
+              label={discussion.category}
               sx={{
-                bgcolor: getPostTypeColor(discussion.type),
+                bgcolor: getPostTypeColor(discussion.category),
                 color: 'white',
                 textTransform: 'capitalize'
               }}
@@ -205,16 +233,16 @@ const DiscussionPost: React.FC<DiscussionPostProps> = ({ discussion, onBack }) =
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 2 }}>
             <Avatar
               sx={{
-                bgcolor: discussion.author.role === 'instructor' ? 'error.main' :
-                        discussion.author.role === 'ta' ? 'warning.main' : 'primary.main'
+                bgcolor: discussion.author.role === 'FACULTY' ? 'error.main' :
+                        discussion.author.role === 'TA' ? 'warning.main' : 'primary.main'
               }}
             >
-              {discussion.author.avatar}
+              {discussion.author.firstName[0]}{discussion.author.lastName[0]}
             </Avatar>
             <Box sx={{ flex: 1 }}>
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                 <Typography variant="subtitle1" fontWeight="bold">
-                  {discussion.author.name}
+                  {discussion.author.firstName} {discussion.author.lastName}
                 </Typography>
                 <Chip
                   size="small"
@@ -223,9 +251,9 @@ const DiscussionPost: React.FC<DiscussionPostProps> = ({ discussion, onBack }) =
                   sx={{ textTransform: 'capitalize', fontSize: '0.7rem', height: 20 }}
                 />
                 <Typography variant="caption" color="text.secondary">
-                  {formatTimeAgo(discussion.createdAt)}
+                  {formatTimeAgo(new Date(discussion.createdAt))}
                 </Typography>
-                {discussion.createdAt.getTime() !== discussion.updatedAt.getTime() && (
+                {new Date(discussion.createdAt).getTime() !== new Date(discussion.updatedAt).getTime() && (
                   <Typography variant="caption" color="text.secondary">
                     (edited)
                   </Typography>
@@ -271,8 +299,8 @@ const DiscussionPost: React.FC<DiscussionPostProps> = ({ discussion, onBack }) =
                       size="small"
                       variant="outlined"
                       sx={{
-                        borderColor: getPostTypeColor(discussion.type),
-                        color: getPostTypeColor(discussion.type)
+                        borderColor: getPostTypeColor(discussion.category),
+                        color: getPostTypeColor(discussion.category)
                       }}
                     />
                   ))}
@@ -289,7 +317,7 @@ const DiscussionPost: React.FC<DiscussionPostProps> = ({ discussion, onBack }) =
                   >
                     {userVote === 'up' ? <ThumbUpIcon /> : <ThumbUpOutlinedIcon />}
                   </IconButton>
-                  <Typography variant="body2">{discussion.votes}</Typography>
+                  <Typography variant="body2">{discussion.votes.upvotes - discussion.votes.downvotes}</Typography>
                 </Box>
 
                 <Button
@@ -317,23 +345,22 @@ const DiscussionPost: React.FC<DiscussionPostProps> = ({ discussion, onBack }) =
         </Typography>
 
         {replies.map((reply) => (
-          <Paper key={reply.id} variant="outlined" sx={{ p: 2, mb: 2 }}>
+          <Paper key={reply._id} variant="outlined" sx={{ p: 2, mb: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
               <Avatar
-                size="small"
                 sx={{
                   width: 32,
                   height: 32,
-                  bgcolor: reply.author.role === 'instructor' ? 'error.main' :
-                          reply.author.role === 'ta' ? 'warning.main' : 'primary.main'
+                  bgcolor: reply.author.role === 'FACULTY' ? 'error.main' :
+                          reply.author.role === 'TA' ? 'warning.main' : 'primary.main'
                 }}
               >
-                {reply.author.avatar}
+                {reply.author.firstName[0]}{reply.author.lastName[0]}
               </Avatar>
               <Box sx={{ flex: 1 }}>
                 <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                   <Typography variant="subtitle2" fontWeight="bold">
-                    {reply.author.name}
+                    {reply.author.firstName} {reply.author.lastName}
                   </Typography>
                   <Chip
                     size="small"
@@ -354,7 +381,7 @@ const DiscussionPost: React.FC<DiscussionPostProps> = ({ discussion, onBack }) =
                     </Tooltip>
                   )}
                   <Typography variant="caption" color="text.secondary">
-                    {formatTimeAgo(reply.createdAt)}
+                    {formatTimeAgo(new Date(reply.createdAt))}
                   </Typography>
                 </Stack>
 
@@ -367,7 +394,7 @@ const DiscussionPost: React.FC<DiscussionPostProps> = ({ discussion, onBack }) =
                     <IconButton size="small">
                       <ThumbUpOutlinedIcon fontSize="small" />
                     </IconButton>
-                    <Typography variant="caption">{reply.votes}</Typography>
+                    <Typography variant="caption">{reply.votes.upvotes}</Typography>
                   </Box>
                   <Button size="small" startIcon={<ReplyIcon />}>
                     Reply

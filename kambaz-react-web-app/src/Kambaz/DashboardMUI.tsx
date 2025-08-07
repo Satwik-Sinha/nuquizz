@@ -7,14 +7,13 @@ import {
   CardContent,
   CardMedia,
   CardActions,
-  Grid,
   Alert,
   Divider,
-  Container
+  Container,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { setCourse, addCourse, deleteCourse, updateCourse, setCourses } from "./Courses/reducer";
+import { setCourses } from "./Courses/reducer";
 import {
   toggleShowAllCourses,
   enroll,
@@ -244,9 +243,18 @@ export default function DashboardMUI({
         )}
 
         <Box id="wd-dashboard-courses">
-          <Grid container spacing={3}>
+          <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: 'repeat(1, 1fr)',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+              lg: 'repeat(4, 1fr)'
+            },
+            gap: 3
+          }}>
             {Array.isArray(courses) && courses.map((course: any, index: number) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={course._id || `course-${index}`}>
+              <Box key={course._id || `course-${index}`}>
                 <Card
                   sx={{
                     height: '100%',
@@ -359,11 +367,12 @@ export default function DashboardMUI({
                     )}
                   </CardActions>
                 </Card>
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         </Box>
       </Box>
     </Container>
   );
 }
+

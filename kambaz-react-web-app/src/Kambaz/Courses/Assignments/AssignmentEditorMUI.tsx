@@ -9,7 +9,6 @@ import {
   Box,
   Slide,
   IconButton,
-  Grid,
   LinearProgress,
   Chip,
 } from "@mui/material";
@@ -202,47 +201,43 @@ export default function AssignmentEditorMUI({
           />
         )}
 
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Assignment Title"
-              value={editedAssignment.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="e.g., Web Development Project"
-              disabled={isSaving}
-              error={!!errors.title}
-              helperText={errors.title}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  transition: 'all 0.2s ease-in-out',
-                  '&:hover': {
-                    boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.1)',
-                  },
-                  '&.Mui-focused': {
-                    boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.2)',
-                  }
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <TextField
+            fullWidth
+            label="Assignment Title"
+            value={editedAssignment.title}
+            onChange={(e) => handleInputChange('title', e.target.value)}
+            placeholder="e.g., Web Development Project"
+            disabled={isSaving}
+            error={!!errors.title}
+            helperText={errors.title}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.1)',
+                },
+                '&.Mui-focused': {
+                  boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.2)',
                 }
-              }}
-            />
-          </Grid>
+              }
+            }}
+          />
 
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              label="Description"
-              value={editedAssignment.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Provide detailed instructions for the assignment..."
-              disabled={isSaving}
-            />
-          </Grid>
+          <TextField
+            fullWidth
+            multiline
+            rows={4}
+            label="Description"
+            value={editedAssignment.description}
+            onChange={(e) => handleInputChange('description', e.target.value)}
+            placeholder="Provide detailed instructions for the assignment..."
+            disabled={isSaving}
+          />
 
-          <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
             <TextField
-              fullWidth
+              sx={{ flex: 1, minWidth: '200px' }}
               type="number"
               label="Points"
               value={editedAssignment.points}
@@ -254,11 +249,9 @@ export default function AssignmentEditorMUI({
                 startAdornment: <Grade sx={{ color: 'warning.main', mr: 1 }} />,
               }}
             />
-          </Grid>
 
-          <Grid item xs={12} sm={6}>
             <TextField
-              fullWidth
+              sx={{ flex: 1, minWidth: '200px' }}
               type="date"
               label="Due Date"
               value={editedAssignment.dueDate}
@@ -269,11 +262,11 @@ export default function AssignmentEditorMUI({
                 startAdornment: <CalendarToday sx={{ color: 'error.main', mr: 1 }} />,
               }}
             />
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
             <TextField
-              fullWidth
+              sx={{ flex: 1, minWidth: '200px' }}
               type="date"
               label="Available From"
               value={editedAssignment.availableFrom}
@@ -284,11 +277,9 @@ export default function AssignmentEditorMUI({
                 startAdornment: <CalendarToday sx={{ color: 'success.main', mr: 1 }} />,
               }}
             />
-          </Grid>
 
-          <Grid item xs={12} sm={6}>
             <TextField
-              fullWidth
+              sx={{ flex: 1, minWidth: '200px' }}
               type="date"
               label="Available Until"
               value={editedAssignment.availableUntil}
@@ -299,8 +290,8 @@ export default function AssignmentEditorMUI({
                 startAdornment: <CalendarToday sx={{ color: 'warning.main', mr: 1 }} />,
               }}
             />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </DialogContent>
 
       <DialogActions sx={{ p: 3, pt: 1, gap: 2 }}>

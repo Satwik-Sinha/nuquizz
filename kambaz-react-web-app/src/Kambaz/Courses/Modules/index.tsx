@@ -10,6 +10,7 @@ import { useParams } from "react-router";
 import { FormControl } from "react-bootstrap";
 import * as coursesClient from "../client";
 import * as modulesClient from "./client";
+import ModulesMUI from "./ModulesMUI";
 
 export default function Modules() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
@@ -84,63 +85,6 @@ export default function Modules() {
     fetchModules();
   }, [cid]);
 
-  return (
-    <div className="d-flex flex-column">
-      {currentUser?.role === "FACULTY" && (
-        <div className="mb-4">
-          <ModulesControls setModuleName={setModuleName} moduleName={moduleName}
-            addModule={createModuleForCourse} />
-        </div>
-      )}
-      {loading ? (
-        <div className="text-center p-4">Loading modules...</div>
-      ) : error ? (
-        <div className="alert alert-danger">{error}</div>
-      ) : (
-        <ul id="wd-modules" className="list-group rounded-0">
-          {modules.length === 0 ? (
-            <li className="list-group-item text-center p-3">
-              No modules available for this course.
-            </li>
-          ) : (
-            modules.map((module: any) => (
-              <li key={module._id} className="wd-module list-group-item p-0 mb-3 fs-5 border-gray">
-                <div className="wd-title p-3 ps-2 bg-secondary">
-                  <BsGripVertical className="me-2 fs-3" />
-                  {!module.editing && module.name}
-                  {module.editing && (
-                    <FormControl className="w-50 d-inline-block"
-                      onChange={(e) => dispatch(updateModule({ ...module, name: e.target.value }))}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          saveModule({ ...module, editing: false });
-                        }
-                      }}
-                      defaultValue={module.name} />
-                  )}
-                  {currentUser?.role === "FACULTY" && (
-                    <ModuleControlButtons
-                      moduleId={module._id}
-                      deleteModule={(moduleId) => removeModule(moduleId)}
-                      editModule={(moduleId) => dispatch(editModule(moduleId))} />
-                  )}
-                </div>
-                {module.lessons && module.lessons.length > 0 && (
-                  <ul className="wd-lessons list-group rounded-0">
-                    {module.lessons.map((lesson: any) => (
-                      <li key={lesson._id} className="wd-lesson list-group-item p-3 ps-1">
-                        <BsGripVertical className="me-2 fs-3" />
-                        {lesson.name}
-                        <LessonControlButtons />
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))
-          )}
-        </ul>
-      )}
-    </div>
-  );
+  // Use the Material UI version instead of Bootstrap
+  return <ModulesMUI />;
 }
