@@ -69,11 +69,14 @@ const sessionOptions = {
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production", 
-    sameSite: process.env.NODE_ENV === "production"   
-      ? "none"
-      : "lax",                                        
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 24*60*60*1000,
-  }
+    // Add domain configuration for cross-origin cookies
+    domain: process.env.NODE_ENV === "production" ? undefined : undefined,
+  },
+  // Additional session settings for better cross-origin support
+  name: 'kambaz.session',
+  proxy: process.env.NODE_ENV === "production",
 };
 app.use(session(sessionOptions));
 
