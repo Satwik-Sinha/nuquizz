@@ -220,4 +220,3 @@ For support and questions:
 
 ---
 
-*Built for CS5610 Web Development at Northeastern University*
