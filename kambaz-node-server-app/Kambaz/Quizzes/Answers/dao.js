@@ -1,4 +1,4 @@
-// Kambaz/Modules/Answers/dao.js
+// Data access layer for quiz answer operations
 import model from "./model.js";
 
 export function createAnswer(answer) {
@@ -8,4 +8,3 @@ export function createAnswer(answer) {
   export function findLatestAnswer(quizId, userId) {
     return model.findOne({ quizId, userId }).sort({ attemptDate: -1 });
   }
-  

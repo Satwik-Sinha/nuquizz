@@ -1,9 +1,9 @@
-// Kambaz/Quizzes/routes.js
+// Quiz routes for course-specific quiz operations
 import * as quizzesDao from "./dao.js";
 import * as questionsDao from "./Questions/dao.js";
 
 export default function QuizRoutes(app) {
-  // List quizzes for a course
+  // Get all quizzes for a specific course
   app.get("/api/courses/:courseId/quizzes", async (req, res) => {
     try {
       const quizzes = await quizzesDao.findQuizzesForCourse(req.params.courseId);
@@ -15,7 +15,7 @@ export default function QuizRoutes(app) {
     }
   });
   
-  // Create quiz for a course
+  // Create new quiz for a course
   app.post("/api/courses/:courseId/quizzes", async (req, res) => {
     try {
       const me = req.session.currentUser;

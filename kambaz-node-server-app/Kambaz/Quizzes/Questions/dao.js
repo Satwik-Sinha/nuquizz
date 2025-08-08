@@ -1,4 +1,4 @@
-// Kambaz/Modules/Questions/dao.js
+// Data access layer for quiz questions
 import model from "./model.js";
 
 export function findQuestionsForQuiz(quizId) {

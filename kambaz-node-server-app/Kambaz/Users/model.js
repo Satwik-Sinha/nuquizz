@@ -1,4 +1,4 @@
-// Kambaz/Users/model.js
+// User model for database operations
 import mongoose from "mongoose";
 import schema from "./schema.js";
 

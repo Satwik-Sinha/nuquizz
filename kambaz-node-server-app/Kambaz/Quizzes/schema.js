@@ -1,4 +1,4 @@
-// Kambaz/Quizzes/schema.js
+// Quiz schema definition
 import mongoose from "mongoose";
 
 const schema = new mongoose.Schema({

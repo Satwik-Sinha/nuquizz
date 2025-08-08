@@ -1,4 +1,4 @@
-// Kambaz/Modules/Answers/model.js
+// Answer model for database operations
 import mongoose from "mongoose";
 import schema from "./schema.js";
 const model = mongoose.model("Answer", schema, "answers");

@@ -1,4 +1,4 @@
-// Kambaz/Modules/dao.js
+// Data access layer for module operations
 import { v4 as uuidv4 } from "uuid";
 import model from "./model.js";
 

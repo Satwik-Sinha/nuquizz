@@ -1,4 +1,4 @@
-// Kambaz/Quizzes/model.js
+// Quiz model for database operations
 import mongoose from "mongoose";
 import schema from "./schema.js";
 const model = mongoose.model("QuizModel", schema);

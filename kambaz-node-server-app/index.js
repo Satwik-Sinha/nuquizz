@@ -1,4 +1,4 @@
-// index.js
+// Main server entry point
 import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
@@ -8,7 +8,6 @@ import "dotenv/config";
 
 import UserRoutes from "./Kambaz/Users/routes.js";
 import CourseRoutes from "./Kambaz/Courses/routes.js";
-import Lab5 from "./Lab5/index.js";
 import ModuleRoutes from "./Kambaz/Modules/routes.js";
 import AssignmentRoutes from "./Kambaz/Assignments/routes.js";
 import EnrollmentRoutes from "./Kambaz/Enrollments/routes.js";
@@ -32,22 +31,22 @@ const app = express();
 
 app.use(express.json());
 
-// Updated CORS configuration to allow both local and deployed frontend
+// CORS configuration for both development and production
 const allowedOrigins = [
-  "http://localhost:5173",  // Local development
-  "http://localhost:3000",  // Alternative local port
-  process.env.NETLIFY_URL || "https://nuquizz-app.netlify.app", // Your Netlify deployment
+  "http://localhost:5173",  // Vite dev server
+  "http://localhost:3000",  // React dev server
+  process.env.NETLIFY_URL || "https://nuquizz-app.netlify.app", // Production deployment
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      // Always allow any netlify.app subdomain for your app
+      // Allow any netlify.app subdomain for deployments
       if (origin && origin.includes("netlify.app")) {
         callback(null, true);
       } else {
@@ -68,8 +67,8 @@ const sessionOptions = {
   store: MongoStore.create({ mongoUrl: CONNECTION_STRING }),
   cookie: {
     httpOnly: true,
-    secure: true,      // require HTTPS
-    sameSite: "none",  // allow cross‑site cookies
+    secure: true,      // HTTPS required in production
+    sameSite: "none",  // Cross-site cookies for separate frontend/backend
     maxAge: 24 * 60 * 60 * 1000
   },
   name: 'connect.sid',
@@ -155,7 +154,7 @@ app.post("/api/courses", async (req, res) => {
   }
 });
 
-// Simple debug route that doesn't require a separate file
+// Quick debug route for quiz counts
 app.get("/api/debug/quizzes/count", async (req, res) => {
   try {
     const count = await mongoose.connection.db.collection("quizzes").countDocuments();
@@ -166,6 +165,7 @@ app.get("/api/debug/quizzes/count", async (req, res) => {
   }
 });
 
+// Debug endpoint for quiz statistics
 app.get("/api/debug/quizzes/stats", async (req, res) => {
   try {
     const totalQuizzes = await mongoose.connection.db.collection("quizzes").countDocuments();
@@ -186,13 +186,13 @@ app.get("/api/debug/quizzes/stats", async (req, res) => {
   }
 });
 
-// Simple test endpoint to verify DELETE requests
+// Test endpoint to verify DELETE requests
 app.delete("/api/test-delete", (req, res) => {
   console.log("Test DELETE request received");
   res.json({ success: true, message: "DELETE request received successfully" });
 });
 
-// Test endpoint to check if a specific quiz exists
+// Test route to verify quiz existence
 app.get("/api/test/quiz/:quizId", async (req, res) => {
   try {
     const quizId = req.params.quizId;
@@ -243,7 +243,6 @@ app.delete("/api/test/quiz/:quizId", async (req, res) => {
 // Register all routes
 UserRoutes(app);
 CourseRoutes(app);
-Lab5(app);
 ModuleRoutes(app);
 AssignmentRoutes(app);
 EnrollmentRoutes(app);

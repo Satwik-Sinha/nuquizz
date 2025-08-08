@@ -1,8 +1,8 @@
-// Kambaz/Modules/Answers/schema.js
+// Answer schema for quiz submissions
 import mongoose from "mongoose";
 
 const answerSchema = new mongoose.Schema({
-  // quizId: { type: mongoose.Schema.Types.ObjectId, ref: "QuizModel", required: true },
+  // TODO: Switch to ObjectId reference when we refactor the quiz model
   quizId: { type: String },
   userId: { type: String, ref: "UserModel"   },
   answers: [

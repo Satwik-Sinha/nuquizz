@@ -1,4 +1,4 @@
-// Kambaz/Modules/Answers/routes.js
+// Answer routes for quiz submission operations
 import * as questionsDao from "../Questions/dao.js"; // Fixed path
 import * as answersDao from "./dao.js"; // Fixed path
 import AnswerModel from "./model.js";

@@ -1,4 +1,4 @@
-// Kambaz/Modules/routes.js
+// Module routes for course module operations
 import * as dao from "./dao.js";
 
 export default function ModuleRoutes(app) {

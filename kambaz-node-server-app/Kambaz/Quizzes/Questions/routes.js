@@ -1,4 +1,4 @@
-// Kambaz/Modules/Questions/routes.js
+// Question routes for quiz question operations
 import * as questionsDao from "./dao.js";
 
 export default function QuestionRoutes(app) {
@@ -22,4 +22,3 @@ export default function QuestionRoutes(app) {
       res.sendStatus(200);
     });
   }
-  
