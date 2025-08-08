@@ -14,7 +14,7 @@ import {
   Assignment as AssignmentIcon,
   Quiz as QuizIcon,
   Add as AddIcon
-} from '@mui/material/icons-material';
+} from '@mui/icons-material';
 
 interface EmptyStateProps {
   type?: 'courses' | 'assignments' | 'quizzes' | 'search' | 'general';
