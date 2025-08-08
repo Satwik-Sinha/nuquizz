@@ -151,13 +151,15 @@ export default function Kambaz() {
     <Session>
       <div id="wd-kambaz">
         <KambazNavigation />
-        <div
+        <main
+          id="main-content"
           className="wd-main-content-offset p-3"
           style={{
             flex: 1,
             overflowY: "auto",
             // marginLeft: "120px",
           }}
+          tabIndex={-1}
         >
           <Routes>
             <Route path="/" element={<Navigate to="Account" />} />
@@ -210,7 +212,7 @@ export default function Kambaz() {
               Satwik Sinha
             </span>
           </div>
-        </div>
+        </main>
       </div>
     </Session>
   );

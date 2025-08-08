@@ -4,6 +4,7 @@ import { IoCalendarOutline } from "react-icons/io5";
 import { LiaBookSolid, LiaCogSolid } from "react-icons/lia";
 import { FaInbox, FaRegCircleUser } from "react-icons/fa6";
 import { ListGroup } from "react-bootstrap";
+import { useKeyboardNavigation } from "../components/useKeyboardNavigation";
 
 export default function KambazNavigation() {
   const { pathname } = useLocation();
@@ -20,32 +21,77 @@ export default function KambazNavigation() {
     width: 120
   };
 
-  const activeGradientStyle = {
-    background: 'linear-gradient(135deg, #342056 0%, #1A0F3A 50%, #0D0820 100%)'
+  const isActiveRoute = (path: string, label: string) => {
+    if (path === "/Kambaz/Account") {
+      return pathname.includes("Account");
+    }
+    return pathname.includes(label);
   };
 
   return (
-    <ListGroup id="wd-kambaz-navigation" style={gradientStyle}
-      className="rounded-0 position-fixed bottom-0 top-0 d-none d-md-block z-2">
-      <ListGroup.Item id="wd-neu-link" target="_blank" href="https://www.northeastern.edu/"
-        action className="border-0 text-center"
-        style={{ background: 'linear-gradient(135deg, #4E2A84 0%, #2D1B69 100%)' }}>
-        <img src="/images/NEU.png" width="75px" /></ListGroup.Item>
-      <ListGroup.Item as={Link} to="/Kambaz/Account" className={`text-center border-0 text-white`}
-        style={pathname.includes("Account") ? activeGradientStyle : { background: 'transparent' }}>
-        <FaRegCircleUser className="fs-1 text-white" />
-        <br />
-        Account
-      </ListGroup.Item>
-      {links.map((link) => (
-        <ListGroup.Item key={link.path} as={Link} to={link.path}
-          className="text-center border-0 text-white"
-          style={pathname.includes(link.label) ? activeGradientStyle : { background: 'transparent' }}>
-          {link.icon({ className: "fs-1 text-white" })}
-          <br />
-          {link.label}
+    <>
+      {/* Skip Link for Accessibility */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+      
+      <ListGroup 
+        id="wd-kambaz-navigation" 
+        style={gradientStyle}
+        className="rounded-0 position-fixed bottom-0 top-0 d-block z-2"
+        as="nav"
+        role="navigation"
+        aria-label="Main navigation"
+      >
+        <ListGroup.Item 
+          id="wd-neu-link" 
+          target="_blank" 
+          href="https://www.northeastern.edu/"
+          action 
+          className="border-0 text-center d-none d-md-block"
+          style={{ background: 'linear-gradient(135deg, #4E2A84 0%, #2D1B69 100%)' }}
+          aria-label="Northeastern University website (opens in new tab)"
+        >
+          <img 
+            src="/images/NEU.png" 
+            width="75px" 
+            alt="Northeastern University logo" 
+          />
         </ListGroup.Item>
-      ))}
-    </ListGroup>
+        
+        <ListGroup.Item 
+          as={Link} 
+          to="/Kambaz/Account" 
+          className={`text-center border-0 text-white ${isActiveRoute("/Kambaz/Account", "Account") ? 'nav-item-active' : ''}`}
+          style={!isActiveRoute("/Kambaz/Account", "Account") ? { background: 'transparent' } : undefined}
+          aria-label="Account management"
+          aria-current={isActiveRoute("/Kambaz/Account", "Account") ? 'page' : undefined}
+          role="link"
+        >
+          <FaRegCircleUser className="fs-1 text-white" aria-hidden="true" />
+          <br />
+          <span className="d-none d-md-inline">Account</span>
+          <span className="d-md-none">Account</span>
+        </ListGroup.Item>
+        
+        {links.map((link) => (
+          <ListGroup.Item 
+            key={link.path} 
+            as={Link} 
+            to={link.path}
+            className={`text-center border-0 text-white ${isActiveRoute(link.path, link.label) ? 'nav-item-active' : ''}`}
+            style={!isActiveRoute(link.path, link.label) ? { background: 'transparent' } : undefined}
+            aria-label={`Navigate to ${link.label}`}
+            aria-current={isActiveRoute(link.path, link.label) ? 'page' : undefined}
+            role="link"
+          >
+            {link.icon({ className: "fs-1 text-white", "aria-hidden": true })}
+            <br />
+            <span className="d-none d-md-inline">{link.label}</span>
+            <span className="d-md-none">{link.label}</span>
+          </ListGroup.Item>
+        ))}
+      </ListGroup>
+    </>
   );
 }
