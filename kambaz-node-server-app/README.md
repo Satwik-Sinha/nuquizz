@@ -1,1 +1,1 @@
-Node.js HTTP Web server for the Kambaz application
+Node.js HTTP Web server for the LMS application
