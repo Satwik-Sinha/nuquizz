@@ -190,8 +190,22 @@ export default function Kambaz() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/Calendar" element={<h1>Calendar</h1>} />
-            <Route path="/Inbox" element={<h1>Inbox</h1>} />
+            <Route
+              path="/Calendar"
+              element={
+                <ProtectedRoute>
+                  <h1>Calendar</h1>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Inbox"
+              element={
+                <ProtectedRoute>
+                  <h1>Inbox</h1>
+                </ProtectedRoute>
+              }
+            />
           </Routes>
 
           {/* Developer Signature */}
@@ -215,3 +229,13 @@ export default function Kambaz() {
     </Session>
   );
 }
+
+
+
+
+
+
+
+
+
+

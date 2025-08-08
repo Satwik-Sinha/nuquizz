@@ -8,12 +8,11 @@ import Discussions from "./Discussions";
 import Zoom from "./Zoom";
 import { Route, Routes, useParams, useLocation } from "react-router";
 import { FaAlignJustify } from "react-icons/fa";
-import PeopleTable from "./People/Table";
+import PeopleTableMUI from "./People/TableMUI";
 import { useSelector } from "react-redux";
 import QuizDetail from "./Quizzes/QuizDetail";
 import QuizEditor from "./Quizzes/Editor";
 import QuizPreview from "./Quizzes/QuizPreview";
-import Quiz from "./Quizzes/Quiz";
 import QuizRouter from "./Quizzes/QuizRouter";
 
 export default function Courses() {
@@ -44,9 +43,8 @@ export default function Courses() {
             <Route path="Quizzes/:qid" element={<QuizDetail />} />
             <Route path="Quizzes/:qid/edit" element={<QuizEditor />} />
             <Route path="Quizzes/:qid/preview" element={<QuizPreview />} />
-            {/* <Route path="Quizzes/:qid/quiz" element={<Quiz />} /> */}
             <Route path="Quizzes/:qid/quiz" element={<QuizRouter />} />
-            <Route path="People" element={<PeopleTable />} />
+            <Route path="People" element={<PeopleTableMUI />} />
             <Route path="Discussions" element={<Discussions />} />
             <Route path="Zoom" element={<Zoom />} />
           </Routes>
