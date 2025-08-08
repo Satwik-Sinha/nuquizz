@@ -99,8 +99,6 @@ export default function DashboardMUI({
           enrollmentsFetched.current = true;
         } catch (error) {
           console.error("Failed to load enrollments:", error);
-          // Don't show fallback - user should only see enrolled courses
-          enrollmentsFetched.current = true;
         }
       };
       fetchEnrollments();
@@ -572,3 +570,5 @@ export default function DashboardMUI({
     </Container>
   );
 }
+
+
