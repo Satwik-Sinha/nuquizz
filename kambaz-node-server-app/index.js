@@ -36,8 +36,7 @@ app.use(express.json());
 const allowedOrigins = [
   "http://localhost:5173",  // Local development
   "http://localhost:3000",  // Alternative local port
-  "https://your-netlify-app-name.netlify.app", // Replace with your actual Netlify URL
-  "https://nuquizz-app.netlify.app", // Common pattern based on your repo name
+  process.env.NETLIFY_URL || "https://nuquizz-app.netlify.app", // Your Netlify deployment
 ];
 
 app.use(cors({
@@ -48,11 +47,11 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      // In production, also allow any https://netlify.app subdomain for your app
-      if (process.env.NODE_ENV === "production" &&
-          origin && origin.includes("netlify.app")) {
+      // Always allow any netlify.app subdomain for your app
+      if (origin && origin.includes("netlify.app")) {
         callback(null, true);
       } else {
+        console.log('CORS blocked origin:', origin);
         callback(new Error('Not allowed by CORS'));
       }
     }
