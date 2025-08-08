@@ -4,13 +4,51 @@ import axios from "axios";
 const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER_A6 || "http://localhost:4000";
 const axiosWithCredentials = axios.create({
   baseURL: REMOTE_SERVER,
-  withCredentials: true
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
+// Add request interceptor to handle authentication
+axiosWithCredentials.interceptors.request.use(
+  (config) => {
+    console.log(`Making request to: ${config.baseURL}${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to handle errors
+axiosWithCredentials.interceptors.response.use(
+  (response) => {
+    console.log(`Response from ${response.config.url}:`, response.status);
+    return response;
+  },
+  (error) => {
+    console.error('API Error:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data
+    });
+    return Promise.reject(error);
+  }
+);
+
 export const fetchAllCourses = async () => {
-  console.log("Fetching all courses");
-  const { data } = await axiosWithCredentials.get(`/api/courses`);
-  return data;
+  console.log("Fetching all courses from:", REMOTE_SERVER);
+  try {
+    const { data } = await axiosWithCredentials.get(`/api/courses`);
+    console.log(`Successfully fetched ${data.length} courses`);
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch courses:", error);
+    throw error;
+  }
 };
 
 export const createCourse = async (course: any) => {

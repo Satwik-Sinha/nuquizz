@@ -6,16 +6,50 @@ export const REMOTE_SERVER =
 const axiosWithCredentials = axios.create({
   baseURL: REMOTE_SERVER,
   withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
+
+// Add request interceptor to handle authentication
+axiosWithCredentials.interceptors.request.use(
+  (config) => {
+    console.log(`Account API request to: ${config.baseURL}${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('Account API request interceptor error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to handle errors
+axiosWithCredentials.interceptors.response.use(
+  (response) => {
+    console.log(`Account API response from ${response.config.url}:`, response.status);
+    return response;
+  },
+  (error) => {
+    console.error('Account API Error:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data
+    });
+    return Promise.reject(error);
+  }
+);
 
 export const USERS_API = `/api/users`;
 
 export const signin = async (credentials: any) => {
   try {
+    console.log("Attempting signin to:", `${REMOTE_SERVER}${USERS_API}/signin`);
     const response = await axiosWithCredentials.post(
       `${USERS_API}/signin`,
       credentials
     );
+    console.log("Signin successful");
     return response.data;
   } catch (error) {
     console.error("Signin error:", error);
@@ -25,9 +59,11 @@ export const signin = async (credentials: any) => {
 
 export const profile = async () => {
   try {
+    console.log("Fetching user profile from:", `${REMOTE_SERVER}${USERS_API}/profile`);
     const response = await axiosWithCredentials.get(
       `${USERS_API}/profile`
     );
+    console.log("Profile fetch successful");
     return response.data;
   } catch (error) {
     console.error("Profile fetch error:", error);
