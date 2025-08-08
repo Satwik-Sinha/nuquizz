@@ -99,10 +99,7 @@ export default function DashboardMUI({
           enrollmentsFetched.current = true;
         } catch (error) {
           console.error("Failed to load enrollments:", error);
-          // Fallback: If enrollment fetching fails (likely due to session issues),
-          // enable showAllCourses mode so users can still see available courses
-          console.log("Enabling showAllCourses mode as fallback due to enrollment fetch failure");
-          dispatch(toggleShowAllCourses());
+          // Don't show fallback - user should only see enrolled courses
           enrollmentsFetched.current = true;
         }
       };

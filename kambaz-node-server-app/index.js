@@ -67,16 +67,16 @@ const sessionOptions = {
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: CONNECTION_STRING }),
   cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", 
+    httpOnly: false, // Allow frontend access for debugging
+    secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 24*60*60*1000,
-    // Add domain configuration for cross-origin cookies
-    domain: process.env.NODE_ENV === "production" ? undefined : undefined,
+    // Remove domain restriction for cross-origin
+    domain: undefined,
   },
-  // Additional session settings for better cross-origin support
-  name: 'kambaz.session',
-  proxy: process.env.NODE_ENV === "production",
+  // Use standard session name and always trust proxy
+  name: 'connect.sid',
+  proxy: true,
 };
 app.use(session(sessionOptions));
 
